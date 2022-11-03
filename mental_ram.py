@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.font
+from datetime import datetime
 
 # app has:
 ##    - improved word boundaries
@@ -8,6 +9,18 @@ import tkinter.font
 ##    - pretty colors
 ##    - press Escape to print contents of windoww
 
+# for improved log. (not integrated into github code yet.)
+# returns date and time in 2 lines (tab in front by default), as a string
+def date_time(add_tab=True):
+    #from datetime import datetime
+    t = datetime.now()
+    date = t.date()
+    h = t.hour
+    m = t.minute
+    if add_tab:
+        return f'\t{date}\n\t{h}{m}'
+    else:
+        return f'{date}\n{h}{m}'
 
 # improves word boundaries, so you can navigate better with (shift+) arrows
 def set_word_boundaries(root):
