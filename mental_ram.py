@@ -14,12 +14,11 @@ if filename not in os.listdir(directory):
 # app has:
 ##    - improved word boundaries
 ##    - tabsize set to 2 spaces
-##    - hit F1 to toggle window staying on top or not. (by default does not stay on top)
+##    - window stays on top
 ##    - pretty colors
 ##    - press Escape to write contents of window + a time and date to a ram_aid.txt file.
 ##    - select text and hit ctrl or alt + a number to change the background color or text color
 
-# for improved log. (not integrated into github code yet.)
 # returns date and time in 2 lines (tab in front by default), as a string
 def date_time(infront='\t'):
     #from datetime import datetime
@@ -28,8 +27,6 @@ def date_time(infront='\t'):
     h = t.hour
     m = t.minute
     return f'{infront}{date}\n{infront}{h}{m}'
-
-
 
 # writes string to a file, and the timestamp.
 # uses date_time() function if available, otherwise just uses time.time()
@@ -87,8 +84,6 @@ def toggle_topmost():
 # logs contents of editor. and re-creates color dictionary
 def func():
     
-    set_color_stuff()
-    
     contents = t.get(1.0, 'end')[:-1]
 
     timestamp = date_time()
@@ -127,8 +122,8 @@ str(line) -> dict(highlight_hotkeys)
                      'control':{k:{'foreground':v} for k,v in color_numbers.items()}}
     return highlight_hotkeys
 
-default_color_line = '1-black, 2-cyan, 3-red, 4-pink, 5-white, 6-green, 7-grey'
-t.insert('end', f'\n\n\n{default_color_line}')
+default_color_line = '1-red, 2-green, 3-cyan, 4-black, 5-grey, 6-pink'
+t.insert('end', f'\n\n\nnegative\npositive\ngeneric highlight\n{default_color_line}')
  
 highlight_counter = 1
 def on_press(event):
@@ -195,9 +190,6 @@ control/alt + number -> change highlighted text:
 root.bind('<KeyPress>', on_press)
 
 root.mainloop()
-
-
-
 
 
 
