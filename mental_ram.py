@@ -1,8 +1,7 @@
 import tkinter as tk
 import tkinter.font
 from datetime import datetime
-import os
-
+import os, time
     
 directory = r'C:\Users\Gebruiker\Desktop\mental tools'
 filename = 'ram_aid_log.txt'
@@ -55,7 +54,7 @@ root = tk.Tk()
 root.config(background='black')
 #root.attributes('-topmost', True)
 
-root.geometry('600x400-0+0')
+root.geometry('1000x600-0+0')
 
 root.title('RAM aid')
 set_word_boundaries(root)
@@ -64,7 +63,8 @@ c1 = 'cyan'
 c2 = 'black'
 sbg = 'grey'
 t = tk.Text(root, fg=c1, bg=c2, insertbackground='white',
-            selectforeground=c1, selectbackground=sbg)
+            selectforeground=c1, selectbackground=sbg,
+            width=150, height=50)
 
 w = t
 font = tkinter.font.Font(font=w['font'])
@@ -122,9 +122,9 @@ str(line) -> dict(highlight_hotkeys)
                      'control':{k:{'foreground':v} for k,v in color_numbers.items()}}
     return highlight_hotkeys
 
-default_color_line = '1-red, 2-green, 3-cyan, 4-black, 5-grey, 6-pink'
-t.insert('end', f'\n\n\nnegative\npositive\ngeneric highlight\n{default_color_line}')
- 
+default_color_line = '1-green, 2-red, 3-cyan, 4-black, 5-grey, 6-orange, 7-blue, 8-brown, 9-purple, 0-violet'
+t.insert('end', f'\n\n\ngeneric highlight\npositive\nnegative\n{default_color_line}')
+
 highlight_counter = 1
 def on_press(event):
     '''
@@ -138,6 +138,7 @@ control/alt + number -> change highlighted text:
 '''
     global highlight_counter
     root.title(event.keysym)
+    #root.title(str(time.time()).partition('.')[0])
     widget = event.widget
 
     # code duplication. key 'alt' in one case, key 'control' in another
