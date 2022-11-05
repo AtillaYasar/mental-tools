@@ -14,5 +14,4 @@ things that help me while coding (and maybe in general)
      - select text, press alt or ctrl + a number to change either the background or color of that text
      - the bottom line of the editor says which color belongs to which number. you can change those from inside the editor and it will work.
  
-![image](https://user-images.githubusercontent.com/112716905/199680200-00acccda-f763-4e81-b19f-4c049f7bed73.png)  
-^^ above image is out of date, because it does not include the bottom line about colors.
+![image](https://user-images.githubusercontent.com/112716905/200115099-e210d779-cd45-4bbc-a14b-aa872edfd173.png)
