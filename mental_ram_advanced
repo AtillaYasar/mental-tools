@@ -274,6 +274,12 @@ def cload(name):
         t.tag_config(n, **settings)
         #print()
 
+if 'ram_aid.json' in os.listdir(os.getcwd()):
+    collection = open_json('ram_aid.json')
+    if 'default' in collection:
+        t.delete(1.0, 'end')
+        cload('default')
+
 def cshow(arg=''):
     if 'ram_aid.json' in os.listdir(os.getcwd()):
         return ', '.join(open_json('ram_aid.json').keys())
