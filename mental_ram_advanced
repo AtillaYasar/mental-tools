@@ -224,8 +224,14 @@ control/alt + number -> change highlighted text:
         elif event.keysym == 'F1':
             toggle_topmost()
 
-def store_tags():
-    #t.tag_cget(1, 'foreground')
+# the following are 4 functions that are for convenient use via the "evalthis" tk.Entry widget (which runs eval on the input)
+    # cstore, cclear, cload, cshow
+
+def cstore(name):
+    if 'ram_aid.json' not in os.listdir(os.getcwd()):
+        make_json({}, 'ram_aid.json')
+    full_catalogue = open_json('ram_aid.json')
+    
     ranges = {}
     for tup in t.dump(1.0, 'end', tag=True):
         number = tup[1]
@@ -242,17 +248,23 @@ def store_tags():
             
     ranges = dict(sorted(ranges.items(), key=lambda tup:int(tup[0])))
     j = {'ranges':ranges, 'text':t.get(1.0, 'end')[:-1]}
-    make_json(j, 'ram_aid.json')
+    full_catalogue[name] = j
+    
+    make_json(full_catalogue, 'ram_aid.json')
 
-def remove_tags():
+def cclear(arg=''):
     for number in list(set([tup[1] for tup in t.dump(1.0, 'end', tag=True)])):
         #print('gonna remove', number)
         t.tag_delete(number)
 
-def load_tags():
-    j = open_json('ram_aid.json')
+def cload(name):
+    j = open_json('ram_aid.json')[name]
     ranges = j['ranges']
+    text = j['text']
     #print(f'ranges:{ranges}')
+    
+    #t.delete(1.0, 'end')
+    t.insert(1.0, text)
     for n, (number, d) in enumerate(ranges.items()):
         first, last = d['tagon'], d['tagoff']
         #print(f'first:{first}, last:{last}')
@@ -261,6 +273,12 @@ def load_tags():
         t.tag_add(n, first, last)
         t.tag_config(n, **settings)
         #print()
+
+def cshow(arg=''):
+    if 'ram_aid.json' in os.listdir(os.getcwd()):
+        return ', '.join(open_json('ram_aid.json').keys())
+    else:
+        return None
 
 root.bind('<KeyPress>', on_press)
 
