@@ -257,13 +257,14 @@ def cclear(arg=''):
         #print('gonna remove', number)
         t.tag_delete(number)
 
-def cload(name):
+def cload(name, replace=False):
     j = open_json('ram_aid.json')[name]
     ranges = j['ranges']
     text = j['text']
     #print(f'ranges:{ranges}')
     
-    #t.delete(1.0, 'end')
+    if replace:
+        t.delete(1.0, 'end')
     t.insert(1.0, text)
     for n, (number, d) in enumerate(ranges.items()):
         first, last = d['tagon'], d['tagoff']
