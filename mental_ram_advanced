@@ -287,7 +287,10 @@ def cshow(arg=''):
     else:
         return None
 
-root.bind('<KeyPress>', on_press)
+def cfont(n):
+    t.config(font=('Comic Sans', n))
+
+t.bind('<KeyPress>', on_press)
 
 root.mainloop()
 
