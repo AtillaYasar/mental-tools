@@ -70,24 +70,29 @@ root.config(background='black')
 #root.attributes('-topmost', True)
 
 root.geometry('1000x600-0+0')
+default_app_title = 'default'
 
-root.title('RAM aid')
+root.title(default_app_title)
 set_word_boundaries(root)
 
 # (for development,) for accessing tkinter variables while the app is still running
+fancy = False
+def printeval():
+    text = evalthis.get()
+    evaluation = str(eval(text))
+    if evaluation != None:
+        if fancy:
+            print('\n'.join(['input', text, '', 'result', evaluation]))
+        else:
+            print(eval(text))
+# because eval() doesn't let you do assignment
 def toggle_fancy():
     global fancy
     if fancy:
-        fancy = 0
+        fancy = False
     else:
-        fancy = 1
-fancy = 0
-def printeval():
-    text = evalthis.get()
-    if fancy:
-        print('\n'.join(['input', text, '', 'result', str(eval(text))]))
-    else:
-        print(eval(text))
+        fancy = True
+
 evalthis = tk.Entry(root, width=50)
 evalthis.pack()
 evalthis.bind('<Return>', lambda *a:printeval())
@@ -98,7 +103,7 @@ sbg = 'cyan'
 t = tk.Text(root, fg=c1, bg=c2, insertbackground='white',
             selectforeground=c1, selectbackground=sbg,
             width=150, height=50,
-            font=('Comic Sans', '18'))
+            font=('Comic Sans', '13'))
 
 w = t
 font = tkinter.font.Font(font=w['font'])
@@ -129,8 +134,7 @@ def func():
     
     log_thing(to_log, directory, filename)
 
-    root.title('Saved')
-    root.after(1000, lambda *a:root.title('RAM aid'))
+    status_message(f'Saved in ram_aid.txt')
 
 t.pack()
 
@@ -173,8 +177,6 @@ control/alt + number -> change highlighted text:
     a class), remove code duplication in alt/control branching, remove need for colors['selectbackground']=sgb )
 '''
     global highlight_counter
-    root.title(event.keysym)
-    #root.title(str(time.time()).partition('.')[0])
     widget = event.widget
 
     # code duplication. key 'alt' in one case, key 'control' in another
@@ -213,16 +215,11 @@ control/alt + number -> change highlighted text:
             existing_settings = {key:get_color(first,key) # get existing settings
                                  for key in ('foreground','background','selectforeground','selectbackground')}
             highlight_counter += 1 # count up the thingy
-    else:
-        # put selectbackground back
-            # for explanation, see above, where I do colors['selectbackground'] = colors['background']
-        for i in range(1, int(highlight_counter)+1):
-            t.tag_config(str(i), selectbackground=sbg)
+    elif event.keysym == 'Escape':
+        func()
+    elif event.keysym == 'F1':
+        toggle_topmost()
 
-        if event.keysym == 'Escape':
-            func()
-        elif event.keysym == 'F1':
-            toggle_topmost()
 
 # the following are 4 functions that are for convenient use via the "evalthis" tk.Entry widget (which runs eval on the input)
     # cstore, cclear, cload, cshow
@@ -252,28 +249,61 @@ def cstore(name):
     
     make_json(full_catalogue, 'ram_aid.json')
 
-def cclear(arg=''):
+    default_app_title = name
+    status_message(f'succesful')
+
+def cscrub(arg=''):
     for number in list(set([tup[1] for tup in t.dump(1.0, 'end', tag=True)])):
-        #print('gonna remove', number)
         t.tag_delete(number)
 
-def cload(name, replace=False):
-    j = open_json('ram_aid.json')[name]
-    ranges = j['ranges']
-    text = j['text']
-    #print(f'ranges:{ranges}')
+def cdelete(name):
+    catalogue = open_json('ram_aid.json')
     
-    if replace:
-        t.delete(1.0, 'end')
-    t.insert(1.0, text)
-    for n, (number, d) in enumerate(ranges.items()):
-        first, last = d['tagon'], d['tagoff']
-        #print(f'first:{first}, last:{last}')
-        settings = d['settings']
-        #print(f'settings:{settings}')
-        t.tag_add(n, first, last)
-        t.tag_config(n, **settings)
-        #print()
+    if name in catalogue:
+        del catalogue[name]
+        make_json(catalogue, 'ram_aid.json')
+        message = 'succesful'
+    else:
+        message = 'unsuccesful'
+        
+    status_message(f'{message}')
+cremove = cdelete # i just cannot seperate these 2 words.
+
+def status_message(message, milliseconds=500):
+    root.title(message)
+    root.after(milliseconds, lambda *a:root.title(default_app_title))
+
+def cload(name, replace=True):
+    global highlight_counter
+
+    collection = open_json('ram_aid.json')
+    if name not in collection:
+        message = 'wrong key'
+    else:
+        j = collection[name]
+        ranges = j['ranges']
+        text = j['text']
+        #print(f'ranges:{ranges}')
+        
+        if replace:
+            t.delete(1.0, 'end')
+        t.insert(1.0, text)
+        highest = highlight_counter+1000
+        for n, (number, d) in enumerate(ranges.items()):
+            first, last = d['tagon'], d['tagoff']
+            #print(f'first:{first}, last:{last}')
+            settings = d['settings']
+            #print(f'settings:{settings}')
+            t.tag_add(n, first, last)
+            t.tag_config(n, **settings)
+            highest = max(int(number), highest)
+            #print()
+        highlight_counter = highest
+        
+        default_app_title = name
+        message = 'succesful'
+
+    status_message(message)
 
 if 'ram_aid.json' in os.listdir(os.getcwd()):
     collection = open_json('ram_aid.json')
@@ -289,6 +319,35 @@ def cshow(arg=''):
 
 def cfont(n):
     t.config(font=('Comic Sans', n))
+
+def cempty(arg=''):
+    t.delete(1.0, 'end')
+
+# the purpose is to use timer.go() and timer.stop() from the UI, by using the tk.Entry widget (called evalthis)
+class Timer:
+    def __init__(self):
+        self.starttime = None
+        self.going = False
+
+    def show_time(self, increment):
+        if self.going:
+            root.title( str(int(round(time.time()-self.starttime, 0))) )
+            root.after(increment, lambda:self.show_time(increment))
+
+    # meant for use from the tk.Entry widget that lets you run eval.
+    def go(self, increment=1000):
+        self.starttime = time.time()
+        self.going = True
+        self.show_time(increment)
+    def start(self, increment=1000):
+        self.go(increment)
+
+    def stop(self):
+        self.going = False
+        root.title(default_app_title)
+
+
+timer = Timer()
 
 t.bind('<KeyPress>', on_press)
 
