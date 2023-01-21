@@ -15,3 +15,6 @@ things that help me while coding (and maybe in general)
      - the bottom line of the editor says which color belongs to which number. you can change those from inside the editor and it will work.
  
 ![image](https://user-images.githubusercontent.com/112716905/200115099-e210d779-cd45-4bbc-a14b-aa872edfd173.png)
+
+## AI extension
+https://github.com/AtillaYasar/text-editor-OpenAI
